@@ -34,6 +34,15 @@ var _ = Describe("Config Collector", func() {
 		})
 	})
 
+	Describe("HasValidHeader", func() {
+		Context("when the header is valid cloud-init (issue kairos-io/kairos#1714)", func() {
+			It("skips optional cloud-init headers", func() {
+				valid := HasValidHeader("## template: jinja\n#cloud-config\n")
+				Expect(valid).To(BeTrue())
+			})
+		})
+	})
+
 	Describe("MergeConfig", func() {
 		var originalConfig, newConfig *Config
 		BeforeEach(func() {

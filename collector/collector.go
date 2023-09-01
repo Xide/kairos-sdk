@@ -400,7 +400,25 @@ func fetchRemoteConfig(url string) (*Config, error) {
 }
 
 func HasValidHeader(data string) bool {
-	header := strings.SplitN(data, "\n", 2)[0]
+	splitLines := 2
+	skippedOptions := false
+	header := ""
+
+	// Skip optional cloud-init headers
+	// such as "## template: jinja"
+	for !skippedOptions {
+		headers := strings.SplitN(data, "\n", splitLines)
+		// reached end of file without finding a valid header
+		if len(headers) < splitLines-2 {
+			return false
+		}
+		header = headers[splitLines-2]
+		if strings.HasPrefix(header, "##") {
+			splitLines++
+			continue
+		}
+		skippedOptions = true
+	}
 
 	// Trim trailing whitespaces
 	header = strings.TrimRightFunc(header, unicode.IsSpace)
